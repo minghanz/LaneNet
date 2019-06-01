@@ -226,55 +226,55 @@ class CamIntrExtr():
         bev = cv2.warpPerspective(img, perspective_transform, (self.u_bev_width, self.v_bev_height))
         return bev
 
+if __name__ == "__main__":
+    ## camera extrinsics
+    yaw = 0
+    pitch = 10
+    roll = 0
+    height = 2.2
 
-## camera extrinsics
-yaw = 0
-pitch = 10
-roll = 0
-height = 2.2
+    cam = CamIntrExtr(yaw, pitch, roll, height)
 
-cam = CamIntrExtr(yaw, pitch, roll, height)
+    ## camera intrinsics
+    img_width = 600
+    img_height = 300
+    cx = img_width/2
+    cy = img_height/2
+    fov = 70
 
-## camera intrinsics
-img_width = 600
-img_height = 300
-cx = img_width/2
-cy = img_height/2
-fov = 70
+    cam.setIntr(cx, cy, fov = fov)
 
-cam.setIntr(cx, cy, fov = fov)
+    ## bev setting
+    bev_width = 270
+    bev_height = 700
+    x_end = 80
+    y_width = 30
 
-## bev setting
-bev_width = 270
-bev_height = 700
-x_end = 80
-y_width = 30
+    align_img_and_bev_bot = True
 
-align_img_and_bev_bot = True
+    if align_img_and_bev_bot:
+        x_bot, _ = cam.img2world(np.array([0]), np.array([img_height-1]) )
+        cam.setBEV(x_end, y_width, bev_width, bev_height, x_bot[0])
+    else:
+        cam.setBEV(x_end, y_width, bev_width, bev_height)
 
-if align_img_and_bev_bot:
-    x_bot, _ = cam.img2world(np.array([0]), np.array([img_height-1]) )
-    cam.setBEV(x_end, y_width, bev_width, bev_height, x_bot[0])
-else:
-    cam.setBEV(x_end, y_width, bev_width, bev_height)
+    # home = os.path.expanduser('~')
+    # img_path = os.path.join(home, 'Carla/scenario_runner_cz/image_npy/imgs/cam_img084584.png')
+    img_path = "data/cam_img084584.png"
+    img = cv2.imread(img_path)
 
-# home = os.path.expanduser('~')
-# img_path = os.path.join(home, 'Carla/scenario_runner_cz/image_npy/imgs/cam_img084584.png')
-img_path = "data/cam_img084584.png"
-img = cv2.imread(img_path)
+    bev1, _, _ = cam.getBevFromImg_1(img)
+    bev2, _, _ = cam.getBevFromImg_2(img)
+    bev3 = cam.getBevFromImg_3(img)
 
-bev1, _, _ = cam.getBevFromImg_1(img)
-bev2, _, _ = cam.getBevFromImg_2(img)
-bev3 = cam.getBevFromImg_3(img)
+    # for i in range(4):
+    #     cv2.circle(img, tuple(pts_img[i]), 5, (0, 0, 255))
+    #     cv2.circle(bev1, tuple(pts_bev[i]), 5, (0, 0, 255))
+    #     cv2.circle(bev2, tuple(pts_bev[i]), 5, (0, 0, 255))
+    #     cv2.circle(bev3, tuple(pts_bev[i]), 5, (0, 0, 255))
+    cv2.imshow('img', img)
+    cv2.imshow('bev1', bev1)
+    cv2.imshow('bev2', bev2)
+    cv2.imshow('bev3', bev3)
 
-# for i in range(4):
-#     cv2.circle(img, tuple(pts_img[i]), 5, (0, 0, 255))
-#     cv2.circle(bev1, tuple(pts_bev[i]), 5, (0, 0, 255))
-#     cv2.circle(bev2, tuple(pts_bev[i]), 5, (0, 0, 255))
-#     cv2.circle(bev3, tuple(pts_bev[i]), 5, (0, 0, 255))
-cv2.imshow('img', img)
-cv2.imshow('bev1', bev1)
-cv2.imshow('bev2', bev2)
-cv2.imshow('bev3', bev3)
-
-cv2.waitKey(0)
+    cv2.waitKey(0)
